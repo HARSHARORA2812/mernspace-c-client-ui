@@ -9,11 +9,15 @@ import ToppingList from './topping-list';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Product, Topping } from '@/lib/types';
 import { Label } from '@/components/ui/label';
+import { useAppDispatch } from '@/lib/store/hooks';
+import { addToCart } from '@/lib/store/features/cart/cartSlice';
 
 type ChosenConfig = {
     [key: string]: string;
 };
 const ProductModal = ({ product }: { product: Product }) => {
+    const dispatch = useAppDispatch();
+
     const [chosenConfig, setChosenConfig] = useState<ChosenConfig>();
     const [selectedToppings, setSelectedToppings] = React.useState<Topping[]>([]);
 
@@ -32,9 +36,15 @@ const ProductModal = ({ product }: { product: Product }) => {
         });
     };
 
-    const handleAddToCart = () => {
-        // todo: add to cart logic
-        console.log('adding to the cart....');
+    const handleAddToCart = (product: Product) => {
+        const itemToAdd = {
+            product,
+            chosenConfiguration: {
+                priceConfiguration: chosenConfig!,
+                selectedToppings: selectedToppings,
+            },
+        };
+        dispatch(addToCart(itemToAdd));
     };
 
     const handleRadioChange = (key: string, data: string) => {
@@ -107,7 +117,7 @@ const ProductModal = ({ product }: { product: Product }) => {
 
                         <div className="flex items-center justify-between mt-12">
                             <span className="font-bold">₹400</span>
-                            <Button onClick={handleAddToCart}>
+                            <Button onClick={() => handleAddToCart(product)}>
                                 <ShoppingCart size={20} />
                                 <span className="ml-2">Add to cart</span>
                             </Button>
